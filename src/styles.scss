@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+
+@use "tailwindcss";
+@plugin "tailwindcss-primeui";
+// @custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
+
+/* Optional dark mode or theme styles */
+// :root {
+//   --color-white: #fff;
+//   --color-purple: #3f3cbb;
+//   --color-midnight: #121063;
+//   --color-tahiti: #3ab7bf;
+//   --color-bermuda: #78dcca;
+// }
+
+@theme {
+  --color-white: #fff;
+  --color-purple: #3f3cbb;
+  --color-midnight: #121063;
+  --color-tahiti: #3ab7bf;
+  --color-bermuda: #78dcca;
+}
+
+@utility container{
+
+  @apply mx-auto px-4 lg:px-2.5;
+}
