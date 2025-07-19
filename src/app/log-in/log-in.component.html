@@ -1,0 +1,89 @@
+
+    <div class="flex justify-center items-center bg-gray-100 min-h-screen">
+      <div
+        class="relative flex md:flex-row flex-col space-y-8 md:space-y-0 bg-white shadow-2xl m-6 rounded-2xl"
+      >
+        <!-- left side -->
+        <div class="flex flex-col justify-center p-8 md:p-14">
+          <span class="mb-3 font-bold text-4xl">Welcome back</span>
+          <span class="mb-8 font-light text-gray-400">
+            Welcom back! Please enter your details
+          </span>
+            <form (ngSubmit)="isSignup ? handleSignup() : handleLogin()" #loginForm="ngForm">
+  <!-- Email -->
+  <div class="py-4">
+    <span class="mb-2 text-md">Email</span>
+    <input
+      type="email"
+      [(ngModel)]="email"
+      name="email"
+      required
+      class="p-2 border border-gray-300 rounded-md w-full"
+    />
+  </div>
+
+  <!-- Password -->
+  <div class="py-4">
+    <span class="mb-2 text-md">Password</span>
+    <input
+      type="password"
+      [(ngModel)]="password"
+      name="password"
+      required
+      class="p-2 border border-gray-300 rounded-md w-full"
+    />
+  </div>
+
+  <!-- Username only for Sign Up -->
+  <div class="py-4" *ngIf="isSignup">
+    <span class="mb-2 text-md">Username</span>
+    <input
+      type="text"
+      [(ngModel)]="username"
+      name="username"
+      required
+      class="p-2 border border-gray-300 rounded-md w-full"
+    />
+  </div>
+
+  <button
+    type="submit"
+    class="bg-black hover:bg-white p-2 hover:border rounded-lg w-full text-white hover:text-black"
+  >
+    {{ isSignup ? 'Sign up' : 'Sign in' }}
+  </button>
+
+  <p *ngIf="errorMessage" class="mt-2 text-red-500">{{ errorMessage }}</p>
+
+  <div class="mt-4 text-gray-400 text-center">
+    <span *ngIf="!isSignup">
+      Don’t have an account?
+      <span class="font-bold text-black cursor-pointer" (click)="toggleSignup()">Sign up for free</span>
+    </span>
+    <span *ngIf="isSignup">
+      Already have an account?
+      <span class="font-bold text-black cursor-pointer" (click)="toggleSignup()">Login</span>
+    </span>
+  </div>
+</form>
+        </div>
+
+        <!-- {/* right side */} -->
+        <div class="relative">
+          <img
+            src="image.jpg"
+            alt="img"
+            class="hidden md:block rounded-r-2xl w-[400px] h-full object-cover"
+          />
+          <!-- text on image  -->
+          <div
+            class="hidden md:block right-6 bottom-10 absolute bg-white bg-opacity-30 drop-shadow-lg backdrop-blur-sm p-6 rounded"
+          >
+            <span class="text-white text-xl"
+              >We've been uesing Untitle to kick"<br />start every new project
+              and can't <br />imagine working without it."
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>

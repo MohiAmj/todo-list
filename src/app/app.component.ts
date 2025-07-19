@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { TodolistComponent } from "./todolist/todolist.component";
+import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-root',
-  imports: [ButtonModule, TodolistComponent],
+  imports: [ButtonModule, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

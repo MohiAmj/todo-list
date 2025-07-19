@@ -1,72 +1,168 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { Task } from '../task.model';
+import { TaskService } from '../task.service';
 import { TableModule } from 'primeng/table';
 import { DragDropModule } from 'primeng/dragdrop';
 import { CommonModule } from '@angular/common';
 import { CheckboxModule } from 'primeng/checkbox';
-// import { MultiSelectModule } from 'primeng/multiselect';
-// import { ReorderableColumnDirective } from 'primeng/table';
-// import { RowReorderModule } from 'primeng/rowreorder'; //
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule, NgForm } from '@angular/forms';
+import { AuthService } from '../auth.service';
+import { User } from '../user.model';
+
 
 @Component({
   selector: 'app-todolist',
-  imports: [CheckboxModule, TableModule, DragDropModule, CommonModule, MultiSelectModule, FormsModule],
+  standalone: true,
+    imports: [CheckboxModule, TableModule, DragDropModule, CommonModule, MultiSelectModule, FormsModule],
   templateUrl: './todolist.component.html',
   styleUrl: './todolist.component.scss'
 })
-export class TodolistComponent {
+export class TodolistComponent implements OnInit {
+  count = signal<number>(0);
+  taskArray: Task[] = [];
+  cols = [
+  { field: 'taskName', header: 'Task' },
+  { field: 'assignedToName', header: 'Assigned To' } // 👈 New column
+];
+  private taskService = inject(TaskService);
+  public auth = inject(AuthService);
+  allUsers: User[] = [];
+selectedUserId: number | null = null;
 
-  count = signal<number>(3);
+ngOnInit() {
 
-  cols = [{ field: 'taskName', header: 'Task' }];
-
-
-
-  taskArray = [
-    { taskName: 'Brushing teeth', isCompleted: false, isReadOnly: true },
-    { taskName: 'English Class', isCompleted: false, isReadOnly: true },
-    { taskName: 'Tennis', isCompleted: false, isReadOnly: true },
-  ]
-
-  handleRowReorder(event: any) {
-    this.taskArray = [...event.value];
-    console.log('New row order:', this.taskArray);
+if (!this.auth.isLoggedIn()) {
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
   }
+  return;
+}
 
-  onSubmit(form: NgForm) {
-    console.log(form)
+const userId = this.auth.getUserId();
 
-    this.taskArray.push({
-      taskName: form.controls['newTask'].value,
-      isCompleted: false,
-      isReadOnly: true
-    })
+if (this.auth.isAdmin()) {
+  this.auth.getAllUsers().subscribe(users => {
+    this.allUsers = users;
+  });
+}
+   this.taskService.getTasks().subscribe(res => {
+    this.taskArray = res.data
+      .filter((task: any) => this.auth.isAdmin() || task.assignedTo?.id === userId)
+      .map((task: any) => ({
+        id: task.id,
+        documentId: task.documentId,
+        taskName: task.taskName,
+        isCompleted: task.isCompleted,
+        isReadOnly: task.isReadOnly,
+        assignedTo: task.assignedTo?.id ?? null,
+        assignedToName: task.assignedTo?.username ?? 'Unassigned'
+      }));
 
     this.updateCount();
+  });
 
-    form.reset();
-  }
+  //  Get all users (only if admin)
+if (this.auth.isAdmin()) {
+  this.auth.getAllUsers().subscribe(users => {
+    this.allUsers = users.map((user: any) => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role
+    }));
+  });
+}
+}
+
+
+
+
+
+handleRowReorder(event: any) {
+  this.taskArray = [...event.value];
+  console.log('New row order:', this.taskArray);
+}
+
+
+
 
   updateCount() {
-    let taskLength = this.taskArray.length;
-    this.count.update(value => value = taskLength);
+    this.count.set(this.taskArray.length);
   }
 
-  handleDelete(row: number) {
-    // this.taskArray = this.taskArray.filter(item => item !== row);
-    this.taskArray.splice(row, 1)
-    this.updateCount();
+logout() {
+  this.auth.logout();
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
   }
+}
+
+handleDelete(index: number) {
+  const task = this.taskArray[index];
+  if (task.documentId) {
+    this.taskService.deleteTask(task.documentId).subscribe(() => {
+      this.taskArray.splice(index, 1);
+      this.updateCount();
+    });
+  } else {
+    console.warn('Task has no documentId');
+  }
+}
 
   handleEdit(index: number) {
     this.taskArray[index].isReadOnly = false;
   }
 
-  handleSave(index: number) {
-    this.taskArray[index].taskName = this.taskArray[index].taskName;
-    this.taskArray[index].isReadOnly = true;
-    console.log(this.taskArray);
+  get completionPercent(): number {
+  if (this.taskArray.length === 0) return 0;
+  const completed = this.taskArray.filter(task => task.isCompleted).length;
+  return Math.round((completed / this.taskArray.length) * 100);
+}
+
+isAdmin(): boolean {
+  return this.auth.isAdmin();
+}
+
+
+handleSave(index: number) {
+  const task = this.taskArray[index];
+  task.isReadOnly = true; // switch back to read-only
+
+ if (task.documentId) {
+  this.taskService.updateTask(task.documentId, task).subscribe({
+    next: () => {
+      console.log('✅ Task updated:', task);
+    },
+    error: (err) => {
+      console.error('Update failed:', err);
+    }
+  });
+}
+ else {
+    console.warn('Task has no ID. Cannot update.');
   }
+}
+
+onSubmit(form: NgForm) {
+  const newTask: Task = {
+    taskName: form.controls['newTask'].value,
+    isCompleted: false,
+    isReadOnly: true,
+    assignedTo: this.isAdmin() ? this.selectedUserId : this.auth.getUserId()
+  };
+
+  this.taskService.createTask(newTask).subscribe((res) => {
+    this.taskArray.push({
+      ...newTask,
+      id: res.data.id,
+      documentId: res.data.documentId
+    });
+    this.updateCount();
+    form.resetForm();
+  });
+}
+
+
 
 }
