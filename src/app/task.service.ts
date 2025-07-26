@@ -12,9 +12,18 @@ export class TaskService {
   private auth = inject(AuthService);
 
   //  Create a new task (admin only)
-  createTask(task: Task): Observable<any> {
-    return this.http.post(API_URL, { data: task }, this.getHeaders());
-  }
+ createTask(task: Task): Observable<any> {
+  const requestData = {
+    data: {
+      taskName: task.taskName,
+      isCompleted: task.isCompleted,
+      isReadOnly: task.isReadOnly,
+      assignedTo: task.assignedTo ? task.assignedTo : null
+    }
+  };
+
+  return this.http.post(API_URL, requestData, this.getHeaders());
+}
 
   //  Update a task by documentId (admin only)
 updateTask(documentId: string, task: Task): Observable<any> {

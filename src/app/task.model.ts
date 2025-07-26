@@ -4,5 +4,6 @@ export interface Task {
   taskName: string;
   isCompleted: boolean;
   isReadOnly: boolean;
-  assignedTo?: number | null; 
+  assignedTo?: number | null;
+  assignedToName?: string; // Make sure this exists
 }

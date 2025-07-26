@@ -127,39 +127,57 @@ isAdmin(): boolean {
 
 handleSave(index: number) {
   const task = this.taskArray[index];
-  console.log('Saving task:', task); // Check if isCompleted is correct here
-  task.isReadOnly = true;
+  task.isReadOnly = true; // switch back to read-only
 
-  if (task.documentId) {
-    this.taskService.updateTask(task.documentId, task).subscribe({
-      next: () => {
-        console.log('✅ Task updated:', task);
-      },
-      error: (err) => {
-        console.error('Update failed:', err);
-      }
-    });
-  } else {
+ if (task.documentId) {
+  this.taskService.updateTask(task.documentId, task).subscribe({
+    next: () => {
+      console.log('✅ Task updated:', task);
+    },
+    error: (err) => {
+      console.error('Update failed:', err);
+    }
+  });
+}
+ else {
     console.warn('Task has no ID. Cannot update.');
   }
 }
 
 onSubmit(form: NgForm) {
+  if (!form.valid) return;
+
+  const assignedUserId = this.isAdmin() ? this.selectedUserId : this.auth.getUserId();
+
+  // Convert IDs to numbers for reliable comparison
+  const assignedUser = this.allUsers.find(user =>
+    Number(user.id) === Number(assignedUserId)
+  );
+
   const newTask: Task = {
     taskName: form.controls['newTask'].value,
     isCompleted: false,
     isReadOnly: true,
-    assignedTo: this.isAdmin() ? this.selectedUserId : this.auth.getUserId()
+    assignedTo: assignedUserId,
+    assignedToName: assignedUser?.username || 'Unassigned'
   };
 
-  this.taskService.createTask(newTask).subscribe((res) => {
-    this.taskArray.push({
-      ...newTask,
-      id: res.data.id,
-      documentId: res.data.documentId
-    });
-    this.updateCount();
-    form.resetForm();
+  this.taskService.createTask(newTask).subscribe({
+    next: (res) => {
+      this.taskArray.push({
+        ...newTask,
+        id: res.data.id,
+        documentId: res.data.documentId,
+        assignedToName: assignedUser?.username || 'Unassigned'
+      });
+      this.updateCount();
+      form.resetForm();
+    },
+    error: (err) => {
+      console.error('Error creating task:', err);
+      // Show user-friendly error message
+      alert('Failed to create task. Please try again.');
+    }
   });
 }
 
