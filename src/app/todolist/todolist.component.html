@@ -96,9 +96,9 @@
         <th pReorderableColumn>{{ col.header }}</th>
         }
         <th>Completed</th>
-        <th>Edit</th>
-        <th>Save</th>
-        <th>Delete</th>
+        <th *ngIf="isAdmin()">Edit</th>
+        <th *ngIf="isAdmin()">Save</th>
+        <th *ngIf="isAdmin()">Delete</th>
       </tr>
     </ng-template>
 
