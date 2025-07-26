@@ -9,7 +9,8 @@
     "test": "ng test",
     "serve:ssr:todo-list": "node dist/todo-list/server/server.mjs",
     "prepare": "husky install",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "lint": "eslint . --config eslint.config.js --ext .ts,.html"
   },
   "lint-staged": {
     "*.{ts,html}": [
