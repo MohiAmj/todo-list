@@ -21,7 +21,7 @@ updateTask(documentId: string, task: Task): Observable<any> {
   return this.http.put(`${API_URL}/${documentId}`, {
     data: {
       taskName: task.taskName,
-      isCompleted: task.isCompleted,
+      isCompleted: task.isCompleted,  // Make sure this is included
       isReadOnly: task.isReadOnly,
       assignedTo: task.assignedTo ? {
         connect: [{ id: task.assignedTo }]

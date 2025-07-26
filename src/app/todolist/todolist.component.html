@@ -150,8 +150,12 @@
 }
 
     <td>
-      <p-checkbox styleClass="ml-[30px]"  (onChange)="!rowData.isCompleted" [(ngModel)]="rowData.isCompleted" [binary]="true"></p-checkbox>
-    </td>
+<p-checkbox
+  styleClass="ml-[30px]"
+  [(ngModel)]="rowData.isCompleted"
+  (onChange)="handleSave(rowIndex)"
+  [binary]="true">
+</p-checkbox>    </td>
 
     <td>
       <button *ngIf="isAdmin()" [disabled]="!rowData.isReadOnly" class="bg-yellow-400 hover:bg-yellow-500 disabled:opacity-50 px-3 py-1 rounded w-[4.3rem] font-medium text-black text-sm cursor-pointer disabled:cursor-not-allowed" (click)="handleEdit(rowIndex)">Edit</button>

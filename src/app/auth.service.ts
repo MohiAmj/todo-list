@@ -117,7 +117,7 @@ saveUser(token: string, user: any) {
 
 
   isAdmin(): boolean {
-    console.log('Current role:', this.currentUser.value?.role?.name);
+    // console.log('Current role:', this.currentUser.value?.role?.name);
 
     return this.currentUser.value?.role?.name === 'admin';
 

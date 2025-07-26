@@ -127,19 +127,19 @@ isAdmin(): boolean {
 
 handleSave(index: number) {
   const task = this.taskArray[index];
-  task.isReadOnly = true; // switch back to read-only
+  console.log('Saving task:', task); // Check if isCompleted is correct here
+  task.isReadOnly = true;
 
- if (task.documentId) {
-  this.taskService.updateTask(task.documentId, task).subscribe({
-    next: () => {
-      console.log('✅ Task updated:', task);
-    },
-    error: (err) => {
-      console.error('Update failed:', err);
-    }
-  });
-}
- else {
+  if (task.documentId) {
+    this.taskService.updateTask(task.documentId, task).subscribe({
+      next: () => {
+        console.log('✅ Task updated:', task);
+      },
+      error: (err) => {
+        console.error('Update failed:', err);
+      }
+    });
+  } else {
     console.warn('Task has no ID. Cannot update.');
   }
 }
