@@ -40,3 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Strapi
+/backend/.tmp/
+/backend/node_modules/
+/backend/public/uploads/  # Media files
